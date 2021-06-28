@@ -39,10 +39,12 @@ int scansRunning = 0;
     GCKCastOptions *options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
     options.physicalVolumeButtonsWillControlDeviceVolume = YES;
     options.disableDiscoveryAutostart = NO;
+    options.suspendSessionsWhenBackgrounded = NO;
+    options.stopReceiverApplicationWhenEndingSession = YES;
     [GCKCastContext setSharedInstanceWithOptions:options];
 
     // Enable chromecast logger.
-//    [GCKLogger sharedInstance].delegate = self;
+    // [GCKLogger sharedInstance].delegate = self;
     
     // Ensure we have only 1 listener attached
     [GCKCastContext.sharedInstance.discoveryManager removeListener:self];
@@ -179,15 +181,24 @@ int scansRunning = 0;
             [self.currentSession joinDevice:device cdvCommand:command];
         }]];
     }
-    [alert addAction:[UIAlertAction actionWithTitle:@"Stop Casting" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self.currentSession endSessionWithCallback:^{
-            [self sendError:@"cancel" message:@"" command:command];
-        } killSession:YES];
-    }]];
+
+    // Only show the stop casting button if there is an active session to stop
+    if([self.currentSession isConnected]) {
+        //NSLog(@"SESSION IS CONNECTED");
+        [alert addAction:[UIAlertAction actionWithTitle:@"Stop Casting" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self.currentSession endSessionWithCallback:^{
+                [self sendError:@"cancel" message:@"" command:command];
+            } killSession:YES];
+        }]];
+    } else {
+        //NSLog(@"SESSION IS NOT CONNECTED");
+    }
+
+    // Cancel should only dismiss the actionsheet
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-        [self.currentSession.remoteMediaClient stop];
         [self sendError:@"cancel" message:@"" command:command];
     }]];
+
     if (IDIOM == IPAD) {
         alert.popoverPresentationController.sourceView = self.webView;
         CGRect frame = CGRectMake(self.webView.frame.size.width/2, self.webView.frame.size.height, self.webView.bounds.size.width/2, self.webView.bounds.size.height);

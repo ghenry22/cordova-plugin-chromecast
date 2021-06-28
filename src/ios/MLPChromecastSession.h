@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) NSMutableDictionary* genericChannels;
 
 - (instancetype)initWithListener:(id<CastSessionListener>)listener cordovaDelegate:(id<CDVCommandDelegate>)cordovaDelegate;
+- (BOOL)isConnected;
 - (void)tryRejoin;
 - (void)joinDevice:(GCKDevice*)device cdvCommand:(CDVInvokedUrlCommand*)command;
 - (void)endSession:(CDVInvokedUrlCommand*)command killSession:(BOOL)killSession;

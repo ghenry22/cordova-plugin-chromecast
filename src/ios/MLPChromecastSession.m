@@ -37,6 +37,14 @@ NSMutableArray<MLPCastRequestDelegate*>* requestDelegates;
     currentSession = session;
 }
 
+- (BOOL)isConnected {
+    if (currentSession != nil && currentSession.connectionState != GCKConnectionStateDisconnected && currentSession.connectionState != GCKConnectionStateDisconnecting && isResumingSession == NO) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 - (void)tryRejoin {
     if (currentSession == nil) {
         // if the currentSession is null we should handle any potential resuming in didResumeCastSession
